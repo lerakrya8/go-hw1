@@ -9,7 +9,7 @@ import (
 type TestCases struct {
 	expected string
 	strings  []string
-	flags    []int
+	flags    Flags
 	testName string
 }
 
@@ -23,7 +23,7 @@ Thanks.
 I love music of Kartik.`,
 			[]string{"I love music.", "I love music.", "I love music.", "", "I love music of Kartik.",
 				"I love music of Kartik.", "Thanks.", "I love music of Kartik.", "I love music of Kartik."},
-			[]int{0, 0, 0, 0, 0, 0},
+			Flags{},
 			"Test flag C",
 		},
 		{
@@ -34,7 +34,14 @@ I love music of Kartik.`,
 2 I love music of Kartik.`,
 			[]string{"I love music.", "I love music.", "I love music.", "", "I love music of Kartik.",
 				"I love music of Kartik.", "Thanks.", "I love music of Kartik.", "I love music of Kartik."},
-			[]int{1, 0, 0, 0, 0, 0},
+			Flags{
+				paramC: 1,
+				paramD: 0,
+				paramU: 0,
+				paramF: 0,
+				paramS: 0,
+				paramI: 0,
+			},
 			"Test flag C",
 		},
 		{
@@ -43,7 +50,14 @@ I love music of Kartik.
 I love music of Kartik.`,
 			[]string{"I love music.", "I love music.", "I love music.", "", "I love music of Kartik.",
 				"I love music of Kartik.", "Thanks.", "I love music of Kartik.", "I love music of Kartik."},
-			[]int{0, 1, 0, 0, 0, 0},
+			Flags{
+				paramC: 0,
+				paramD: 1,
+				paramU: 0,
+				paramF: 0,
+				paramS: 0,
+				paramI: 0,
+			},
 			"Test flag D",
 		},
 		{
@@ -51,7 +65,14 @@ I love music of Kartik.`,
 Thanks.`,
 			[]string{"I love music.", "I love music.", "I love music.", "", "I love music of Kartik.",
 				"I love music of Kartik.", "Thanks.", "I love music of Kartik.", "I love music of Kartik."},
-			[]int{0, 0, 1, 0, 0, 0},
+			Flags{
+				paramC: 0,
+				paramD: 0,
+				paramU: 1,
+				paramF: 0,
+				paramS: 0,
+				paramI: 0,
+			},
 			"Test flag D",
 		},
 		{
@@ -62,7 +83,14 @@ Thanks.
 I love music of kartik.`,
 			[]string{"I LOVE MUSIC.", "I love music.", "I LoVe MuSiC.", "", "I love MuSIC of Kartik.",
 				"I love music of Kartik.", "Thanks.", "I love music of kartik.", "I love MuSIC of Kartik."},
-			[]int{0, 0, 0, 1, 0, 0},
+			Flags{
+				paramC: 0,
+				paramD: 0,
+				paramU: 0,
+				paramF: 0,
+				paramS: 0,
+				paramI: 1,
+			},
 			"Test flag I",
 		},
 		{
@@ -72,7 +100,14 @@ I love music of Kartik.
 Thanks.`,
 			[]string{"We love music.", "I love music.", "They love music.", "", "I love music of Kartik.",
 				"We love music of Kartik.", "Thanks."},
-			[]int{0, 0, 0, 0, 1, 0},
+			Flags{
+				paramC: 0,
+				paramD: 0,
+				paramU: 0,
+				paramF: 1,
+				paramS: 0,
+				paramI: 0,
+			},
 			"Test flag F",
 		},
 		{
@@ -83,8 +118,15 @@ We love music of Kartik.
 Thanks.`,
 			[]string{"I love music.", "A love music.", "C love music.", "", "I love music of Kartik.",
 				"We love music of Kartik.", "Thanks."},
-			[]int{0, 0, 0, 0, 0, 1},
-			"Test flag F",
+			Flags{
+				paramC: 0,
+				paramD: 0,
+				paramU: 0,
+				paramF: 0,
+				paramS: 1,
+				paramI: 0,
+			},
+			"Test flag S",
 		},
 		{
 			`1 I love music.
@@ -94,15 +136,29 @@ Thanks.`,
 1 Thanks.`,
 			[]string{"I love music.", "A love music.", "C love music.", "", "I love music of Kartik.",
 				"We love music of Kartik.", "Thanks."},
-			[]int{1, 0, 0, 0, 0, 1},
-			"Test flag F",
+			Flags{
+				paramC: 1,
+				paramD: 0,
+				paramU: 0,
+				paramF: 0,
+				paramS: 1,
+				paramI: 0,
+			},
+			"Test flag C S",
 		},
 		{
 			`1 I love music.
 2 I love music of Kartik.`,
 			[]string{"I love music.", "I love music.", "I love music.", "", "I love music of Kartik.",
 				"I love music of Kartik.", "Thanks.", "I love music of Kartik.", "I love music of Kartik."},
-			[]int{1, 1, 0, 0, 0, 0},
+			Flags{
+				paramC: 1,
+				paramD: 1,
+				paramU: 0,
+				paramF: 0,
+				paramS: 0,
+				paramI: 0,
+			},
 			"Test flag D",
 		},
 	}

@@ -8,31 +8,16 @@ import (
 	"unicode"
 )
 
-func pluse(first, second int32) int32 {
-	return first + second
-}
-
-func minus(first, second int32) int32 {
-	return first - second
-}
-
-func del(first, second int32) int32 {
-	return first / second
-}
-
-func mult(first, second int32) int32 {
-	return first * second
-}
-
 func choseOperation(operation, first, second int32) int32 {
-	if string(operation) == "-" {
-		return minus(first, second)
-	} else if string(operation) == "+" {
-		return pluse(first, second)
-	} else if string(operation) == "/" {
-		return del(first, second)
+	switch {
+	case string(operation) == "-":
+		return first - second
+	case string(operation) == "+":
+		return first + second
+	case string(operation) == "/":
+		return first / second
 	}
-	return mult(first, second)
+	return first * second
 }
 
 func count(expression string) int32 {
@@ -75,7 +60,7 @@ var (
 
 func endOfNumber(elem int32) bool {
 	if elem == ' ' || elem == ')' || elem == '+' || elem == '-' ||
-		elem == '*' || elem == '/' || elem == '('{
+		elem == '*' || elem == '/' || elem == '(' {
 		return true
 	}
 	return false

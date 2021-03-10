@@ -13,16 +13,25 @@ import (
 	"fmt"
 )
 
-func fromBoolToInt(commands *[]int, value *bool) []int {
+func fromBoolToInt(flag *int, value *bool) int {
 	if *value {
-		*commands = append(*commands, 1)
+		*flag = 1
 	} else {
-		*commands = append(*commands, 0)
+		*flag = 0
 	}
-	return *commands
+	return *flag
 }
 
-func parseArguments() ([]int, string, string) {
+type Flags struct {
+	paramC int
+	paramD int
+	paramU int
+	paramF int
+	paramS int
+	paramI int
+}
+
+func parseArguments() (Flags, string, string) {
 	paramC := flag.Bool("c", false, "number of meetings")
 	paramD := flag.Bool("d", false, "")
 	paramU := flag.Bool("u", false, "")
@@ -32,30 +41,25 @@ func parseArguments() ([]int, string, string) {
 
 	flag.Parse()
 
-	arguments := make([]int, 0)
+	flags := Flags{}
 
-	fromBoolToInt(&arguments, paramC)
-	fromBoolToInt(&arguments, paramD)
-	fromBoolToInt(&arguments, paramU)
-	arguments = append(arguments, *paramF)
-	arguments = append(arguments, *paramS)
-	fromBoolToInt(&arguments, paramI)
+	fromBoolToInt(&flags.paramC, paramC)
+	fromBoolToInt(&flags.paramD, paramD)
+	fromBoolToInt(&flags.paramU, paramU)
+	flags.paramF = *paramF
+	flags.paramS = *paramS
+	fromBoolToInt(&flags.paramI, paramI)
 
 	inputFile := flag.Arg(0)
 	outputFile := flag.Arg(1)
 
-	return arguments, inputFile, outputFile
+	return flags, inputFile, outputFile
 }
 
-func checkExtraOptions(options *[]int) bool {
-	countOptions := 0
-
-	for _, arg := range *options {
-		if arg == 1 {
-			countOptions++
-		}
-	}
-	if countOptions > 1 {
+func checkExtraOptions(options Flags) bool {
+	if options.paramC != 0 && options.paramD != 0 || options.paramU != 0 {
+		return true
+	} else if options.paramD != 0 && options.paramC != 0 || options.paramU != 0 {
 		return true
 	}
 	return false
@@ -206,34 +210,34 @@ func NoFlags(data *[]string) []string {
 	return uniqStrings
 }
 
-func correctUniqWork(options *[]int, data *[]string) []string {
+func correctUniqWork(options *Flags, data *[]string) []string {
 	result := make([]string, 0)
 
-	if reflect.DeepEqual(*options, []int{0, 0, 0, 0, 0, 0}) {
+	if reflect.DeepEqual(*options, Flags{}) {
 		result = NoFlags(data)
 	}
 
-	if (*options)[3] != 0 {
+	if options.paramI != 0 {
 		result = optionIorNan(data)
 	}
 
-	if (*options)[5] != 0 {
+	if (*options).paramS != 0 {
 		if len(result) == 0 {
-			result = optionS(data, (*options)[5])
+			result = optionS(data, options.paramS)
 		} else {
-			result = optionS(&result, (*options)[5])
+			result = optionS(&result, options.paramS)
 		}
 	}
 
-	if (*options)[4] != 0 {
+	if options.paramF != 0 {
 		if len(result) == 0 {
-			result = optionF(data, (*options)[4])
+			result = optionF(data, options.paramF)
 		} else {
-			result = optionF(&result, (*options)[4])
+			result = optionF(&result, options.paramF)
 		}
 	}
 
-	if (*options)[1] != 0 {
+	if (*options).paramD != 0 {
 		if len(result) == 0 {
 			result = optionDorU(data, true)
 		} else {
@@ -241,7 +245,7 @@ func correctUniqWork(options *[]int, data *[]string) []string {
 		}
 	}
 
-	if (*options)[2] != 0 {
+	if (*options).paramU != 0 {
 		if len(result) == 0 {
 			result = optionDorU(data, false)
 		} else {
@@ -249,7 +253,7 @@ func correctUniqWork(options *[]int, data *[]string) []string {
 		}
 	}
 
-	if (*options)[0] != 0 {
+	if (*options).paramC != 0 {
 		if len(result) == 0 {
 			mapStrings := optionC(data)
 			result = fromMapToArray(mapStrings)
@@ -283,8 +287,8 @@ func checkOutputFile(outputFile *string, optionsStrings *[]string) {
 func main() {
 	arguments, inputFile, outputFile := parseArguments()
 
-	sliceArg := arguments[0:3]
-	if checkExtraOptions(&sliceArg) {
+	//sliceArg := arguments[0:3]
+	if checkExtraOptions(arguments) {
 		fmt.Println("Format: uniq [-c | -d | -u] [-i] [-f num] [-s chars] [input_file [output_file]]")
 		return
 	}
