@@ -20,10 +20,24 @@ func choseOperation(operation, first, second int32) int32 {
 	return first * second
 }
 
+type Stack struct {
+	stack []interface{}
+}
+
+func (st *Stack) Push(value interface{}) {
+	st.stack = append(st.stack, value)
+}
+
+func (st *Stack) Pop() interface{} {
+	value := st.stack[len(st.stack)-1]
+	st.stack = st.stack[:len(st.stack)-1]
+	return value
+}
+
 func count(expression string) int32 {
 	var number int32
 	var flag bool
-	var stack []int32
+	var stack Stack
 
 	for _, element := range expression {
 		if unicode.IsDigit(element) {
@@ -32,20 +46,18 @@ func count(expression string) int32 {
 			flag = true
 		} else {
 			if element != ' ' {
-				num2 := stack[len(stack)-1]
-				stack = stack[:len(stack)-1]
-				num1 := stack[len(stack)-1]
-				stack = stack[:len(stack)-1]
+				num2 := stack.Pop().(int32)
+				num1 := stack.Pop().(int32)
 
-				stack = append(stack, choseOperation(element, num1, num2))
+				stack.Push(choseOperation(element, num1, num2))
 				flag = false
 			} else if element == ' ' && flag {
-				stack = append(stack, number)
+				stack.Push(number)
 				number = 0
 			}
 		}
 	}
-	return stack[len(stack)-1]
+	return stack.stack[len(stack.stack)-1].(int32)
 }
 
 var (
@@ -70,7 +82,7 @@ func formExpression(normalExpression string) string {
 	var number int32
 	var flag bool
 	var resultExp string
-	var stack []string
+	var stack Stack
 
 	for _, elem := range normalExpression {
 		strElem := string(elem)
@@ -85,8 +97,8 @@ func formExpression(normalExpression string) string {
 				number = 0
 				flag = false
 			}
-			if len(stack) == 0 || priorities[stack[len(stack)-1]] < priorities[strElem] {
-				stack = append(stack, strElem)
+			if len(stack.stack) == 0 || priorities[stack.stack[len(stack.stack)-1].(string)] < priorities[strElem] {
+				stack.Push(strElem)
 				if (elem == ' ' || elem == ')') && flag {
 					resultExp += strconv.Itoa(int(number)) + " "
 					number = 0
@@ -98,11 +110,11 @@ func formExpression(normalExpression string) string {
 					number = 0
 					flag = false
 				}
-				for priorities[stack[len(stack)-1]] > priorities[strElem] {
-					resultExp += stack[len(stack)-1] + " "
-					stack = stack[:len(stack)-1]
+				for priorities[stack.stack[len(stack.stack)-1].(string)] > priorities[strElem] {
+					resultExp += stack.stack[len(stack.stack)-1].(string) + " "
+					stack.Pop()
 				}
-				stack = append(stack, strElem)
+				stack.Push(strElem)
 			}
 			flag = false
 		} else if strElem == "(" {
@@ -111,7 +123,7 @@ func formExpression(normalExpression string) string {
 				number = 0
 				flag = false
 			}
-			stack = append(stack, strElem)
+			stack.Push(strElem)
 			flag = false
 		} else if strElem == ")" {
 			if endOfNumber(elem) && flag {
@@ -119,11 +131,11 @@ func formExpression(normalExpression string) string {
 				number = 0
 				flag = false
 			}
-			for stack[len(stack)-1] != "(" {
-				resultExp += stack[len(stack)-1] + " "
-				stack = stack[:len(stack)-1]
+			for stack.stack[len(stack.stack)-1].(string) != "(" {
+				resultExp += stack.stack[len(stack.stack)-1].(string) + " "
+				stack.Pop()
 			}
-			stack = stack[:len(stack)-1]
+			stack.Pop()
 			flag = false
 		} else if endOfNumber(elem) && flag {
 			resultExp += strconv.Itoa(int(number)) + " "
@@ -135,9 +147,9 @@ func formExpression(normalExpression string) string {
 		resultExp += strconv.Itoa(int(number)) + " "
 	}
 
-	for len(stack) != 0 {
-		resultExp += stack[len(stack)-1] + " "
-		stack = stack[:len(stack)-1]
+	for len(stack.stack) != 0 {
+		resultExp += stack.stack[len(stack.stack)-1].(string) + " "
+		stack.Pop()
 	}
 	return resultExp
 }
